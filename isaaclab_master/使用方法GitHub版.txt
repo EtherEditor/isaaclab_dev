@@ -1,0 +1,53 @@
+wsl
+cd ~/IsaacLab
+ docker ps -a
+# 启动停止的容器
+docker start isaac-lab-base
+python3 docker/container.py enter
+
+tensorboard --logdir /workspace/isaaclab/logs/rsl_rl/unitree_go2_flat --host 0.0.0.0 --port 6008
+tensorboard --logdir /workspace/isaaclab/logs/rsl_rl --host 0.0.0.0 --port 6008
+tensorboard --logdir /workspace/isaaclab/logs --host 0.0.0.0 --port 6008
+
+./isaaclab.sh -p scripts/reinforcement_learning/rsl_rl/train.py --task=Isaac-Velocity-Flat-Unitree-Go2-v0 --headless 
+./isaaclab.sh -p scripts/reinforcement_learning/rsl_rl/train.py --task=Isaac-Velocity-Flat-Unitree-Go2-Play-v0 --headless --max_iterations=600
+./isaaclab.sh -p scripts/reinforcement_learning/rsl_rl/train.py --task=Isaac-Velocity-Rough-Unitree-Go2-v0 --headless --max_iterations=600
+./isaaclab.sh -p scripts/reinforcement_learning/rsl_rl/train.py --task=Isaac-Velocity-Flat-Cassie-v0 --headless --max_iterations=600
+./isaaclab.sh -p scripts/reinforcement_learning/rsl_rl/train.py --task=Isaac-Velocity-Rough-Cassie-v0 --headless --max_iterations=600
+
+
+blation Study:
+./isaaclab.sh -p scripts/reinforcement_learning/rsl_rl/play.py  --task Isaac-Velocity-Rough-Unitree-Go2-v0 --headless --video  --num_envs 1 --load_run "2026-02-21_07-05-12" +task.commands.base_velocity.ranges.lin_vel_x=[1.5,1.5]
+
+./isaaclab.sh -p scripts/reinforcement_learning/rsl_rl/play.py --task Isaac-Velocity-Rough-Unitree-Go2-v0 --headless --num_envs 1 --video --video_length 400 --load_run "2026-02-21_07-05-12"
+
+./isaaclab.sh -p  isaaclab_master/train.py  --headless --max_iterations=600
+./isaaclab.sh -p /workspace/isaaclab/isaaclab_master/export_jit.py
+
+Git开发:
+git init
+root@docker-desktop:/workspace/isaaclab# git config --global user.name isaaclabdev  /EtherEditor
+root@docker-desktop:/workspace/isaaclab# git config --global user.email 2012856640@qq.com
+git remote add origin git@github.com:EtherEditor/isaaclabdev.git
+
+git branch
+
+git add .
+git commit -m "feat(go2): implemented macro framework"
+git push -u origin main
+
+git checkout -b first-stage-initial-exploration  # (创建并)切换到一个(新)分支，(名字要具有描述性)
+git add .            # 当你写完一个奖励函数或调好一个参数时：
+git commit -m "refactor(reward): tune tracking velocity reward weights"
+git push origin first-stage-initial-exploration             # 定期推送到 GitHub（即使没写完也要推，防止丢失）
+
+git checkout main   # 1. 切换回主分支
+git merge experiment/go2-walking-gait   # 2. 拉取分支内容
+git push origin main      # 3. 推送更新后的主分支
+
+prompt:现在是2026.2.21，IsaacLab,go2,python，完成go2绕过一些随机障碍然后拾起随机障碍后的随机物品这一任务。提示词要结构化和正式，代码要考虑扩展性等，应当是有良好的类、任务环境等的定义、输入输出，你应当在自己心中有大框架，然后分阶段输出并纠正指导另一个LLM。
+
+prompt:(上传代码文件)目的是完成go2绕过一些随机障碍然后拾起随机障碍后的随机物品这一任务，请你研读代码，并给出关于主要逻辑的修改和扩充建议，不必完整输出整个代码文件，建议已经足够
+
+prompt:
+Now is 2026.You're a experienced and intelligent scientist and engineer and familiar with Isaac Lab.Now I'd want you to modify and extend based on these py files, to complete the task:armed go2 use PPO-lagrangian like Agile but Safe when crossing random obstacles and then grasp target(specified in advance)  with high-level policy, please give me the prompts. The prompt words should be structured and formal. The code should take into account extensibility, etc. It should have a good definition of classes, task environments, input and output. You should have a broad framework in your mind and then output and correct another LLM in stages. you can draw on others such as Agile but Safe and Visual whole body.We do it by stage.you give me one stage prompt and I promt a LLM ,get code block and give back to you to review . If proper then we step to next stage.
